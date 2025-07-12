@@ -39,5 +39,5 @@ jobs:
           registry: "https://npm.pkg.github.com"
 
       - name: Publish
-        run: npx npm-publish --token ${{ secrets.GITHUB_TOKEN }} dist/shared-lib --access public
+        run: npx npm-publish --token ${{ secrets.NPM_TOKEN }} dist/shared-lib --access public
 
