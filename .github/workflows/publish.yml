@@ -36,7 +36,7 @@ jobs:
       - uses: JS-DevTools/npm-publish@v3
         with:
           token: ${{ secrets.NPM_TOKEN }}
-          registry: "https://npm.pkg.github.com"
+          registry: 'https://registry.npmjs.org'
 
       - name: Publish
         run: npx npm-publish --token ${{ secrets.NPM_TOKEN }} dist/shared-lib --access public
