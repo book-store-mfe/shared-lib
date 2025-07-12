@@ -12,6 +12,10 @@ jobs:
   build-and-publish:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+      packages: write # allow GITHUB_TOKEN to publish packages
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -29,19 +33,9 @@ jobs:
       - name: Build library
         run: npm run build:prod
 
-      - name: Publish to NPM
-        run: npm publish dist/shared-lib --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-
-      - name: Config registry
-        run: |
-          npm config registry=registry=https://npm.pkg.github.com
-          npm config set _authToken=${{ secrets.GITHUB_TOKEN }}
-
-      - name: Publish to NPM
-        run: |
-          cd dist/shared-lib
-          npm publish --access public
+      - uses: JS-DevTools/npm-publish@v3
+        run: npx npm-publish --token ${{ secrets.GITHUB_TOKEN }} dist/shared-lib --access public
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          registry: "https://npm.pkg.github.com"
 
