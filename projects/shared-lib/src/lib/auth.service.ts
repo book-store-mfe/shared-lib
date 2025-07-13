@@ -1,4 +1,10 @@
-import { Injectable, signal } from '@angular/core';
+import { computed, Injectable, signal } from '@angular/core';
+
+interface User {
+  name: string;
+  email: string;
+  token?: string;
+}
 
 const STORAGE_KEY = 'shared-lib-auth'
 
@@ -7,40 +13,68 @@ const STORAGE_KEY = 'shared-lib-auth'
 })
 export class AuthService {
 
-  private _token = signal('');
-  private _authenticated = signal(false);
+  private _user = signal<User | null>(null);
+  private _authenticated = computed(() => !!this._user()?.token);
 
-  isAuthenticated() {
-    return this._authenticated;
+  token() {
+    return this._user()?.token;
   }
 
-  getToken() {
-    return this._token();
+  authenticated() {
+    return this._authenticated();
   }
 
-  login(email: String) {
+  signIn(email: String) {
     try {
-      const storagData = localStorage.getItem(STORAGE_KEY);
-      if (!storagData || JSON.parse(storagData)?.email !== email) {
+      const json = localStorage.getItem(STORAGE_KEY);
+      if (!json) {
         return false;
       }
+      const data: User = JSON.parse(json);
+      if (data?.email !== email) {
+        return false;
+      }
+      this._user.set({
+        name: data.name,
+        email: data.email,
+        token: crypto.randomUUID(),
+      })
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(this._user()));
+      return this._user()!;
     } catch {
       return false;
     }
-
-    this._authenticated.set(true)
-    this._token.set(crypto.randomUUID())
-    return true;
   }
 
-  register(name: string, email: String) {
+  signInSilent() {
+    try {
+      const json = localStorage.getItem(STORAGE_KEY);
+      if (!json) {
+        return false;
+      }
+      const data: User = JSON.parse(json);
+      if (!data?.token) {
+        return false;
+      }
+      this._user.set({
+        name: data.name,
+        email: data.email,
+        token: crypto.randomUUID(),
+      })
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(this._user()));
+      return this._user()!;
+    } catch {
+      return false;
+    }
+  }
+
+  signUp(name: string, email: string) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ name, email }));
   }
 
-  logout() {
-    this._authenticated.set(false)
-    this._token.set('')
-    localStorage.removeItem(STORAGE_KEY);
+  signOut() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...this._user(), token: null }));
+    this._user.set(null);
   }
 
 }

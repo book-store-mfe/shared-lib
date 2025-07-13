@@ -3,5 +3,6 @@
  */
 
 export * from './lib/profile-state.service';
-export * from './lib/auth.service';
 export * from './lib/profile-name.component';
+export * from './lib/auth.service';
+export * from './lib/auth.guard';
