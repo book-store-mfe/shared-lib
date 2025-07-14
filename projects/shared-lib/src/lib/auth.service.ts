@@ -20,6 +20,13 @@ export class AuthService {
     return this._user()?.token;
   }
 
+  /**
+   * @since v0.2.0
+   */
+  user() {
+    return this._user()
+  }
+
   authenticated() {
     return this._authenticated();
   }
