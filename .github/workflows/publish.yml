@@ -40,3 +40,14 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+      - name: Trigger reports action
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.BOOKSTORE_TOKEN }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: 'book-store-mfe',
+              repo: 'shared-lib',
+              workflow_id: 'report.yml',
+              ref: 'main'
+            })
